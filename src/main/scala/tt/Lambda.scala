@@ -19,7 +19,10 @@ sealed abstract class Lambda {
     case Variable(_) if v == this => e
     case v@Variable(_) => v
     case Application(x, y) => Application(x.substitute(v, e, scope), y.substitute(v, e, scope))
-    case Abstraction(bind, _) if e.freeVariables().contains(bind) => null
+    case Abstraction(bind, body) if body.freeVariables().contains(v) =>
+      val newBind = v/
+      val newBody = body.substitute(bind, newBind)
+      Abstraction(newBind, newBody.substitute(v, e))
     case Abstraction(bind, body) => Abstraction(bind, body.substitute(v, e, scope))
   }
 
@@ -68,6 +71,8 @@ case class Abstraction(binding: Variable, body: Lambda) extends Lambda {
 
 case class Variable(name: String) extends Lambda {
   override lazy val toString = s"$name"
+
+  def / : Variable = Variable(name + "'")
 }
 
 case class Application(lhs: Lambda, rhs: Lambda) extends Lambda {
