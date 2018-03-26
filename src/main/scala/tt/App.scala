@@ -22,6 +22,12 @@ object Task1 extends App with TaskRunner[Lambda] {
   run(args, 1)
 }
 
+object Task2 extends App with TaskRunner[Type] {
+  implicit def action(s: String): Either[LambdaError, Type] = LambdaParser(s).flatMap(Typer(_).toRight(NoType()))
+
+  run(args, 2)
+}
+
 object Playground extends App {
   //  val input = "(\\n.\\f.\\x.n (\\g.\\h.h (g f)) (\\u.x) (\\u.u)) (\\f.\\x.f (f (f x)))"
   //  val parsed = LambdaParser(input).right.get

@@ -81,4 +81,10 @@ case class Application(lhs: Lambda, rhs: Lambda) extends Lambda {
 
 trait LambdaError
 
-case class ParsingException(errorMessage: String = null) extends LambdaError
+case class ParsingException(errorMessage: String = null) extends LambdaError {
+  override def toString: String = s"Лямбда-выражение не соответствует грамматике: $errorMessage"
+}
+
+case class NoType() extends LambdaError {
+  override lazy val toString: String = "Лямбда-выражение не имеет типа"
+}
