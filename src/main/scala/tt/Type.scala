@@ -2,6 +2,12 @@ package tt
 
 sealed abstract class Type {
   def ->(other: Type): Type = Arrow(this, other)
+
+  def freeTypes(): Set[String] = this match {
+    case Atom(s) => Set(s)
+    case Arrow(f, t) => f.freeTypes() ++ t.freeTypes()
+    case ForAll(name, t) => t.freeTypes() - name
+  }
 }
 
 case class Atom(name: String) extends Type {
@@ -10,9 +16,13 @@ case class Atom(name: String) extends Type {
 
 case class Arrow(from: Type, to: Type) extends Type {
   override def toString: String = (from, to) match {
-    case (a@Arrow(_, _), b) => s"($a) -> $b"
     case (a@Atom(_), b) => s"$a -> $b"
+    case (a@_, b) => s"($a) -> $b"
   }
+}
+
+case class ForAll(v: String, t: Type) extends Type {
+  override lazy val toString: String = s"∀$v($t)"
 }
 
 sealed abstract class LTerm {
@@ -71,11 +81,13 @@ object TypeOpts {
   implicit def typeToTerm(t: Type): LTerm = t match {
     case Atom(name) => Var(name)
     case Arrow(from, to) => Fun("->", Seq(typeToTerm(from), typeToTerm(to)))
+    case ForAll(v, tt) => Fun("forall", Seq(typeToTerm(Var(v)), typeToTerm(tt)))
   }
 
   implicit def termToType(t: LTerm): Type = t match {
     case Var(name) => Atom(name)
     case Fun("->", Seq(from, to)) => Arrow(termToType(from), termToType(to))
+    case Fun("forall", Seq(Var(x), to)) => ForAll(x, termToType(to))
   }
 }
 

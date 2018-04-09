@@ -2,12 +2,15 @@ package tt
 
 import org.parboiled2._
 
-import scala.io.Source
 import scala.util.{Failure, Success}
 
 class LambdaParser(val input: ParserInput) extends Parser {
 
-  def line: Rule1[Lambda] = rule { expr ~ EOI }
+  def lambda: Rule1[Lambda] = rule { expr ~ EOI }
+
+  def lambdaExpr: Rule1[LambdaExpression] = rule { letExpr ~ EOI }
+
+  private def letExpr: Rule1[LambdaExpression] = rule { ("let" ~ variable ~ "=" ~ letExpr ~ "in" ~ letExpr) ~> Substitution }
 
   private def expr: Rule1[Lambda] = rule { application | atom }
 
@@ -15,9 +18,7 @@ class LambdaParser(val input: ParserInput) extends Parser {
 
   private def atom: Rule1[Lambda] = rule { variable | abstraction | brackets }
 
-  private def variable: Rule1[Variable] = rule {
-    capture(CharPredicate.LowerAlpha ~ zeroOrMore(varName)) ~> Variable
-  }
+  private def variable: Rule1[Variable] = rule { capture(CharPredicate.LowerAlpha ~ zeroOrMore(varName)) ~> Variable }
 
   private def brackets: Rule1[Lambda] = rule { "(" ~ expr ~ ")" }
 
@@ -31,7 +32,17 @@ class LambdaParser(val input: ParserInput) extends Parser {
 object LambdaParser {
   def apply(s: String): Either[ParsingException, Lambda] = {
     val parser = new LambdaParser(s)
-    parser.line.run() match {
+    parser.lambda.run() match {
+      case Success(l) => Right(l)
+      case Failure(ex) => Left(ParsingException(ex.asInstanceOf[ParseError].format(parser)))
+    }
+  }
+}
+
+object LambdaExprParser {
+  def apply(s: String): Either[ParsingException, LambdaExpression] = {
+    val parser = new LambdaParser(s.replaceAll(" ", ""))
+    parser.lambdaExpr.run() match {
       case Success(l) => Right(l)
       case Failure(ex) => Left(ParsingException(ex.asInstanceOf[ParseError].format(parser)))
     }

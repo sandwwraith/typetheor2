@@ -4,16 +4,21 @@ package tt
 import scala.collection.immutable.Set
 import scala.collection.{mutable => m}
 
-sealed abstract class Lambda {
-
-  private type LL = Lambda => Lambda
-
+sealed trait LambdaExpression {
   def freeVariables(scope: Set[Variable] = Set()): Set[Variable] = this match {
     case Abstraction(v, b) => b.freeVariables(scope + v)
     case Application(x, y) => x.freeVariables(scope) ++ y.freeVariables(scope)
+    case Substitution(v, l, r) => l.freeVariables(scope) ++ r.freeVariables(scope + v)
     case v@Variable(_) if !scope.contains(v) => Set(v)
     case _ => Set()
   }
+}
+
+sealed abstract class Lambda extends LambdaExpression {
+
+  private type LL = Lambda => Lambda
+
+
 
   def substitute(v: Variable, e: Lambda, scope: Set[Variable] = Set()): Lambda = this match {
     case Variable(_) if v == this => e
@@ -78,6 +83,8 @@ case class Variable(name: String) extends Lambda {
 case class Application(lhs: Lambda, rhs: Lambda) extends Lambda {
   override lazy val toString = la"$lhs $rhs"
 }
+
+case class Substitution(let: Variable, eq: LambdaExpression, in: LambdaExpression) extends LambdaExpression
 
 trait LambdaError
 
