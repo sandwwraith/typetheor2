@@ -33,7 +33,7 @@ class Typer {
 
 
   /**
-    * Original implementation from http://www.nsl.com/misc/papers/martelli-montanari.pdf
+    * http://www.nsl.com/misc/papers/martelli-montanari.pdf
     */
   private def unify_(system: Seq[Equation]): Option[Seq[Equation]] = system match {
     case Nil => Some(Seq())
