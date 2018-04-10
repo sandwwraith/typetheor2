@@ -6,13 +6,13 @@ import java.util.Map;
 import static java.lang.Character.*;
 
 public class LambdaFastParser {
-    final String str;
-    final char[] s;
-    int pos;
-    Map<String, String> map;
-    int counter;
+    private final String str;
+    private final char[] s;
+    private int pos;
+    private Map<String, String> map;
+    private int counter;
 
-    int lamCounter;
+    private int lamCounter;
 
     public LambdaFastParser(String s) {
         this.str = s;
@@ -63,9 +63,7 @@ public class LambdaFastParser {
         ++counter;
         String newName = "var" + counter;
         map.put(var.name(), newName);
-//        revName.put(newName, read);
         var = new Variable(newName);
-//        var.initialName = var.name;
         Lambda exp = exp();
         if (oldName.equals("?")) {
             map.remove(read);
@@ -112,7 +110,6 @@ public class LambdaFastParser {
             } else if (map.containsKey(name)) {
                 name = map.get(name);
             }
-            //System.err.println("parse var: " + name + ' ' + free);
             return new Variable(name);
         }
     }
