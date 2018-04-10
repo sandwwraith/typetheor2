@@ -17,7 +17,7 @@ trait TaskRunner[R] {
 }
 
 object Task1 extends App with TaskRunner[Lambda] {
-  implicit def action(s: String): Either[LambdaError, Lambda] = LambdaParser(s).map(_.normalForm)
+  implicit def action(s: String): Either[LambdaError, Lambda] = Right(new LambdaFastParser(s).parse().normalForm)
 
   run(args, 1)
 }
@@ -29,8 +29,9 @@ object Task2 extends App with TaskRunner[Type] {
 }
 
 object Playground extends App {
-  //  val input = "(\\n.\\f.\\x.n (\\g.\\h.h (g f)) (\\u.x) (\\u.u)) (\\f.\\x.f (f (f x)))"
+  val input = "(\\n.\\f.\\x.n (\\g.\\h.h (g f)) (\\u.x) (\\u.u)) (\\f.\\x.f (f (f x)))"
   //  val parsed = LambdaParser(input).right.get
   //  println(parsed.normalForm)
-  FibTest.fib(5)
+  //  println(FibTest.fib(100))
+  println(new LambdaFastParser(input).parse())
 }

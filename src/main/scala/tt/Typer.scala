@@ -65,6 +65,7 @@ object Typer {
   private def substituteTypes(where: Type, what: Map[Type, Type]): Type = where match {
     case t@Atom(_) => what.getOrElse(t, t)
     case Arrow(left, right) => substituteTypes(left, what) -> substituteTypes(right, what)
+    case ForAll(v, t) => ForAll(v, substituteTypes(t, what))
   }
 
   def apply(l: Lambda): Option[Type] = {

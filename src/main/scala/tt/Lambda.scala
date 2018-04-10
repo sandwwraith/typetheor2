@@ -18,8 +18,6 @@ sealed abstract class Lambda extends LambdaExpression {
 
   private type LL = Lambda => Lambda
 
-
-
   def substitute(v: Variable, e: Lambda, scope: Set[Variable] = Set()): Lambda = this match {
     case Variable(_) if v == this => e
     case v@Variable(_) => v
