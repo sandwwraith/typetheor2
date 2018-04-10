@@ -17,7 +17,7 @@ trait TaskRunner[R] {
 }
 
 object Task1 extends App with TaskRunner[Lambda] {
-  implicit def action(s: String): Either[LambdaError, Lambda] = Right(new LambdaFastParser(s).parse().normalForm)
+  implicit def action(s: String): Either[LambdaError, Lambda] = Right(Normalizer.apply(new LambdaFastParser(s).parse()))
 
   run(args, 1)
 }
